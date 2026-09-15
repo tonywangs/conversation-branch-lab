@@ -1,0 +1,30 @@
+{
+  "name": "conversation-branch-lab",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Convert ChatGPT conversation exports into offline branch comparison reports",
+  "type": "module",
+  "bin": {
+    "conversation-branch-lab": "src/cli.js"
+  },
+  "files": [
+    "src",
+    "web",
+    "fixtures",
+    "README.md",
+    "docs"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "test:browser": "node --test test/browser.e2e.js",
+    "test:install": "node scripts/check-install.js",
+    "demo": "node src/cli.js fixtures/synthetic-conversations.json -o demo.html --force",
+    "check": "npm test && npm run test:install && npm run test:browser"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0"
+  }
+}

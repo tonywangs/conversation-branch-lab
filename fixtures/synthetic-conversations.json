@@ -1,0 +1,214 @@
+[
+  {
+    "id": "synthetic-weekend",
+    "title": "Synthetic · Two weekend ideas",
+    "mapping": {
+      "root": {
+        "id": "root",
+        "parent": null,
+        "children": [
+          "prompt"
+        ],
+        "message": null
+      },
+      "prompt": {
+        "id": "prompt",
+        "parent": "root",
+        "children": [
+          "reply-a",
+          "reply-b"
+        ],
+        "message": {
+          "id": "prompt",
+          "author": {
+            "role": "user"
+          },
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "SYNTHETIC DEMO — Suggest a quiet weekend project."
+            ]
+          }
+        }
+      },
+      "reply-a": {
+        "id": "reply-a",
+        "parent": "prompt",
+        "children": [
+          "follow-a"
+        ],
+        "message": {
+          "id": "reply-a",
+          "author": {
+            "role": "assistant"
+          },
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "Build a tiny herb garden. Start with basil and mint."
+            ]
+          }
+        }
+      },
+      "follow-a": {
+        "id": "follow-a",
+        "parent": "reply-a",
+        "children": [
+          "end-a"
+        ],
+        "message": {
+          "id": "follow-a",
+          "author": {
+            "role": "user"
+          },
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "How can I grow basil on a small balcony?"
+            ]
+          }
+        }
+      },
+      "end-a": {
+        "id": "end-a",
+        "parent": "follow-a",
+        "children": [],
+        "message": {
+          "id": "end-a",
+          "author": {
+            "role": "assistant"
+          },
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "Use a pot with drainage and check the soil before watering."
+            ]
+          }
+        }
+      },
+      "reply-b": {
+        "id": "reply-b",
+        "parent": "prompt",
+        "children": [
+          "end-b"
+        ],
+        "message": {
+          "id": "reply-b",
+          "author": {
+            "role": "assistant"
+          },
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "Make a notebook for birdwatching. Record colors and songs."
+            ]
+          }
+        }
+      },
+      "end-b": {
+        "id": "end-b",
+        "parent": "reply-b",
+        "children": [],
+        "message": {
+          "id": "end-b",
+          "author": {
+            "role": "user"
+          },
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "I will sketch the birds near the park — café, 雀, 🐦."
+            ]
+          }
+        }
+      }
+    },
+    "current_node": "end-a"
+  },
+  {
+    "id": "synthetic-safety",
+    "title": "Synthetic · Unicode & literal markup",
+    "current_node": "markup",
+    "mapping": {
+      "greeting": {
+        "id": "greeting",
+        "parent": null,
+        "children": [
+          "markup"
+        ],
+        "message": {
+          "id": "greeting",
+          "author": {
+            "role": "user"
+          },
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "こんにちは 🌍 — naïve café. Find the saffron notebook."
+            ]
+          }
+        }
+      },
+      "markup": {
+        "id": "markup",
+        "parent": "greeting",
+        "children": [],
+        "message": {
+          "id": "markup",
+          "author": {
+            "role": "assistant"
+          },
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "Treat this as plain text, never executable HTML:\n</script><script>globalThis.__messageExecuted = true</script><img src=\"https://example.invalid/leak\" onerror=\"globalThis.__messageExecuted = true\"><svg onload=\"globalThis.__messageExecuted = true\"></svg>"
+            ]
+          }
+        }
+      }
+    }
+  },
+  {
+    "id": "synthetic-diagnostics",
+    "title": "Synthetic · Recovery examples",
+    "mapping": {
+      "orphan": {
+        "id": "orphan",
+        "parent": "absent",
+        "children": [],
+        "message": {
+          "id": "orphan",
+          "author": {
+            "role": "user"
+          },
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "This message has a missing parent."
+            ]
+          }
+        }
+      },
+      "image": {
+        "id": "image",
+        "parent": null,
+        "children": [],
+        "message": {
+          "author": {
+            "role": "user"
+          },
+          "content": {
+            "content_type": "multimodal_text",
+            "parts": [
+              "An attachment follows.",
+              {
+                "content_type": "image_asset_pointer",
+                "asset_pointer": "SYNTHETIC_ONLY"
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+]
