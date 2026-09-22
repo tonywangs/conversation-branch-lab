@@ -22,7 +22,8 @@
     "test:browser": "node --test test/browser.e2e.js",
     "test:install": "node scripts/check-install.js",
     "demo": "node src/cli.js fixtures/synthetic-conversations.json -o demo.html --force",
-    "check": "npm test && npm run test:install && npm run test:browser"
+    "check": "npm test && npm run test:install && npm run test:browser",
+    "test:large": "node scripts/verify-large.js"
   },
   "devDependencies": {
     "@playwright/test": "1.63.0"

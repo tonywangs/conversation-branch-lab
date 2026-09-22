@@ -2,3 +2,7 @@ node_modules/
 *.tgz
 demo.html
 test-results/
+
+*.log
+!results/tests.log
+report.html

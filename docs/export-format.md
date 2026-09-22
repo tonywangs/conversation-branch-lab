@@ -33,7 +33,7 @@ This documents the implemented subset of an observed export format, not an offic
 ## Normalization
 
 - The top level must be an array. Each entry must be an object with an object-valued `mapping`; every mapping value must be a node object. Failure rejects the entire conversion. Empty arrays and empty mappings are valid and receive empty-state UI.
-- Mapping keys are the authoritative node IDs. An embedded node `id` or message `id` is ignored. Empty strings, `__proto__`, and `constructor` work as IDs. Conversations are selected by their array index, so duplicate conversation IDs do not collapse records.
+- Mapping keys are the authoritative node IDs. An embedded node `id` or message `id` is ignored. Empty strings, `__proto__`, and `constructor` work as IDs. The import layer deduplicates identical whole records and rejects conflicting string conversation IDs, including within one file. The low-level `parseExport` helper alone retains all input records; the CLI uses `importExports`.
 - Missing or non-string titles receive a fallback. Missing or non-string conversation IDs receive a generated ID. These optional display-field fallbacks are not diagnostics.
 - `parent` is a string node ID or null. An absent parent means root. Parent links determine the tree; `children` is optional and only checked for consistency. Siblings follow mapping enumeration order (including JavaScript's ordering of integer-like keys).
 - Null or absent `message` is a visible structural node. Other messages should have an object `author` with a string `role`, and an object `content`. Missing/non-string roles display as `unknown`; arbitrary string roles remain literal text.
@@ -42,7 +42,7 @@ This documents the implemented subset of an observed export format, not an offic
 
 ## Diagnostics
 
-Diagnostics carry a zero-based conversation index in the parsed model; the CLI and browser show one-based conversation numbers. They also carry a node ID when applicable, a code, and a detail string.
+Diagnostics carry a zero-based conversation index in the parsed model; the CLI and browser show one-based conversation numbers. They also carry a node ID when applicable, a code, and a detail string. The multi-file import layer adds the original source filename and record position, and remaps the conversation index after deduplication.
 
 | Code | Recovery |
 | --- | --- |

@@ -100,8 +100,8 @@ test('empty export and empty conversation remain usable', async t => {
   await expect(second.page.locator('#comparison-status')).toHaveText('No endpoints to compare.');
 });
 
-test('special node identifiers, duplicate conversation IDs, and cycles survive browser navigation', async t => {
-  const {page} = await setup(t,'[{"id":"same","title":"Special keys","mapping":{"__proto__":{"parent":null,"message":null},"constructor":{"parent":"__proto__","message":null},"":{"parent":"constructor","message":null}}},{"id":"same","title":"Cycle","mapping":{"a":{"parent":"b","message":null},"b":{"parent":"a","message":null}}}]');
+test('special node identifiers, distinct conversation IDs, and cycles survive browser navigation', async t => {
+  const {page} = await setup(t,'[{"id":"same","title":"Special keys","mapping":{"__proto__":{"parent":null,"message":null},"constructor":{"parent":"__proto__","message":null},"":{"parent":"constructor","message":null}}},{"id":"cycle","title":"Cycle","mapping":{"a":{"parent":"b","message":null},"b":{"parent":"a","message":null}}}]');
   await expect(page.locator('#path .message')).toHaveCount(3);
   await page.locator('#endpoint-a').selectOption('__proto__');
   await page.locator('#endpoint-b').selectOption('');

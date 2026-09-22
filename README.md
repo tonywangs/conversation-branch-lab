@@ -10,7 +10,7 @@ Requires **Node.js 22 or later** and npm. From this private checkout:
 
 ```sh
 npm install --global . --omit=dev --ignore-scripts
-conversation-branch-lab /path/to/conversations.json -o /path/to/report.html
+conversation-branch-lab /path/to/conversations.json /path/to/more.json -o /path/to/report.html
 ```
 
 Alternatively, run directly without installing anything:
@@ -33,6 +33,14 @@ conversation-branch-lab --help
 
 `--strict` fails on any diagnostic and writes no report. Ordinary mode repairs malformed links and displays diagnostics both on stderr and inside the report. Invalid JSON or invalid conversation/mapping/node shapes always exit with code 1. A successful conversion exits with code 0, even when recovery diagnostics are present.
 
+## Multiple files and large reports
+
+Files are imported in command-line order; conversations retain array order. Identical records are retained once, at their first occurrence. Equality compares the entire JSON record with object keys sorted; arrays remain ordered. Records with the same string ID but different content fail with both filenames and record positions. Without a string ID, only identical whole records deduplicate. Re-exported records with changed metadata count as conflicts, even if their displayed text is unchanged. No version is silently preferred. Single-file input follows the same duplicate policy.
+
+Conversation selectors and the branch tree show 100 entries per page. Use **Previous/Next conversations** or tree **Previous/Next** to reach more. Each path and comparison panel shows at most 100 message cards, initially the last page; **Previous** reveals earlier context. The four message panels therefore render at most 400 cards in total. Diagnostics are also paged. Search always scans the whole archive and clicking a result opens its conversation and matching node, even outside the visible pages.
+
+Endpoint dropdowns contain the first 100 nodes plus selected endpoints. To compare any other node, select it in the paged tree, find it through search, or enter its exact ID in **Go to node ID**, then use **Use selected as A/B**. Buttons, selectors, and the node-ID form support keyboard access. Native Enter submits the node-ID form locally. Paging bounds element counts, not the length of one message or total browser memory. Browser printing includes only the currently rendered pages; keep the HTML report to retain the whole archive.
+
 ## Reproducible demonstration
 
 ```sh
@@ -53,11 +61,11 @@ Comparison uses node identity and ancestry, not textual similarity. Selecting an
 
 See [export format and recovery rules](docs/export-format.md) for the precise supported subset.
 
-- Only a JSON array of conversations with `mapping` objects is accepted. Other vendors, flat transcript formats, ZIP files, and automatic discovery/merging of split exports are unsupported.
+- Only a JSON array of conversations with `mapping` objects is accepted. Supply one or more JSON files explicitly; directories, ZIP files, other vendors, flat transcript formats, and automatic discovery are unsupported.
 - String parts of `text` and `multimodal_text` messages are displayed. Attachments and other content types become explicit placeholders; images, audio, video, tool payloads in unsupported formats, timestamps, and most metadata are not rendered.
 - Markdown, HTML, URLs, and code are displayed as literal text. No active links, rendered Markdown, external fonts, analytics, or network resources are included.
 - **Compatibility with Tony's actual exports remains unverified until they are supplied.** Tests use synthetic data and an observed community export structure, not a guaranteed stable schema.
-- Input and output are held in memory. There is no streaming, pagination, or virtualized tree. A parser test covers a 20,000-node chain, but large real exports and large browser reports have not been performance-tested. Search displays the first 100 matching messages and reports the total. Unicode normalization and locale-specific equivalences are not guaranteed.
+- Input and output are held in memory, not streamed. Import limits are 64 files, 128 MiB combined input bytes, 10,000 input conversation records, and 250,000 input nodes (including duplicates). These are rejection limits, not responsiveness guarantees. Synthetic checks cover 1,000 conversations / 50,000 messages and a separate 5,000-node deeply branched conversation. See [performance measurements](docs/performance.md). Search scans all messages synchronously, displays the first 100 matches, and reports the total. Search uses Unicode lowercase, without normalization or locale-specific equivalences.
 - Node order follows JSON mapping enumeration, not timestamps or the declared `children` order. Visual indentation is capped at 12 levels; every node remains selectable and its actual depth is available in its tooltip.
 - The report contains a copy of supported message text, titles, roles, node identifiers, and diagnostics. Treat it as private data. No encryption is provided, and local browser extensions or other software are outside the application's protection.
 
@@ -71,6 +79,7 @@ npx playwright install chromium
 npm test
 npm run test:install
 npm run test:browser
+npm run test:large
 ```
 
 `npm run check` runs all three checks. Browser installation may also require your platform's Chromium system libraries. It is a one-time development setup download; tests themselves use an offline browser context with HTTP(S) requests intercepted and rejected.
@@ -83,7 +92,7 @@ PLAYWRIGHT_BROWSERS_PATH=/tmp/conversation-playwright npx playwright install chr
 PLAYWRIGHT_BROWSERS_PATH=/tmp/conversation-playwright npm run check
 ```
 
-`test:install` packs the actual package, installs that tarball into a temporary isolated prefix using npm's offline mode, invokes the installed CLI from outside the repository, and generates a report using the packaged fixture. It removes temporary artifacts afterward. Browser tests import JSON through the CLI and open the resulting `file://` report; they cover navigation, comparison, search, empty/malformed graphs, narrow layout, and script-injection resistance with and without CSP.
+`test:install` packs the actual package, installs that tarball into a temporary isolated prefix using npm's offline mode, invokes the installed CLI from outside the repository, and imports the packaged fixture plus a second file with one duplicate and one new record to verify multi-file ordering and deduplication. Set `VERIFY_INSTALL_BROWSER=1` to also open and search the installed report in offline Chromium. It removes temporary artifacts afterward. Browser tests import JSON through the CLI and open the resulting `file://` report; they cover navigation, comparison, search, empty/malformed graphs, narrow layout, and script-injection resistance with and without CSP.
 
 See [validation scope](docs/validation.md). No website or package registry publication is needed.
 

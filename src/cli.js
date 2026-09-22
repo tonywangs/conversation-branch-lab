@@ -2,9 +2,9 @@
 import { readFile, writeFile, stat, rename, rm } from 'node:fs/promises';
 import { resolve, dirname, join } from 'node:path';
 import { randomUUID } from 'node:crypto';
-import { parseExport } from './parser.js';
+import { importExports, LIMITS } from './import.js';
 import { renderReport } from './report.js';
-const usage = `Usage: conversation-branch-lab <conversations.json> [-o report.html] [--strict] [--force]
+const usage = `Usage: conversation-branch-lab <conversations.json> [more.json ...] [-o report.html] [--strict] [--force]
 
 Creates a self-contained offline HTML report. Default output: report.html
 --strict  Fail on any diagnostic instead of repairing malformed links.
@@ -13,7 +13,8 @@ Creates a self-contained offline HTML report. Default output: report.html
 `;
 async function main(args) {
   if (args.includes('--help') || args.includes('-h')) { console.log(usage); return; }
-  let input, output = 'report.html', strict = false, force = false;
+  const inputs = [];
+  let output = 'report.html', strict = false, force = false;
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
     if (arg === '-o' || arg === '--output') {
@@ -22,21 +23,30 @@ async function main(args) {
     } else if (arg === '--strict') strict = true;
     else if (arg === '--force') force = true;
     else if (arg.startsWith('-')) throw new Error(`Unknown option: ${arg}`);
-    else if (input) throw new Error('Expected one input file.');
-    else input = arg;
+    else inputs.push(arg);
   }
-  if (!input) throw new Error(usage);
-  if (resolve(input) === resolve(output)) throw new Error('Input and output must be different files.');
-  const inputStat = await stat(input);
+  if (!inputs.length) throw new Error(usage);
+  if (inputs.length > LIMITS.files) throw new Error(`Input file limit ${LIMITS.files} exceeded.`);
   const outputStat = await stat(output).catch(error => { if (error.code === 'ENOENT') return null; throw error; });
-  if (outputStat && inputStat.dev === outputStat.dev && inputStat.ino === outputStat.ino) {
-    throw new Error('Input and output refer to the same file.');
+  const sources = [];
+  let totalBytes = 0;
+  for (const input of inputs) {
+    if (resolve(input) === resolve(output)) throw new Error('Input and output must be different files.');
+    const inputStat = await stat(input);
+    if (!inputStat.isFile()) throw new Error(`${input}: expected a regular file.`);
+    if (outputStat && inputStat.dev === outputStat.dev && inputStat.ino === outputStat.ino) throw new Error('Input and output refer to the same file.');
+    totalBytes += inputStat.size;
+    if (totalBytes > LIMITS.bytes) throw new Error(`Input byte limit ${LIMITS.bytes} exceeded at ${input}.`);
+    let raw;
+    try {
+      const bytes = await readFile(input);
+      if (bytes.length !== inputStat.size) throw new Error('Input changed while reading.');
+      raw = JSON.parse(bytes.toString('utf8').replace(/^\uFEFF/, ''));
+    } catch (error) { throw new Error(`${input}: Cannot read JSON input: ${error.message}`); }
+    sources.push({ source: input, input: raw });
   }
-  let raw;
-  try { raw = JSON.parse((await readFile(input, 'utf8')).replace(/^\uFEFF/, '')); }
-  catch (error) { throw new Error(`Cannot read JSON input: ${error.message}`); }
-  const data = parseExport(raw);
-  for (const d of data.diagnostics) console.error(`[${d.code}] conversation ${d.conversation + 1}${d.node === null ? '' : `, node ${d.node}`}: ${d.detail}`);
+  const data = importExports(sources);
+  for (const d of data.diagnostics) console.error(`${d.source} [${d.code}] conversation ${d.conversation + 1}${d.node === null ? '' : `, node ${d.node}`}: ${d.detail}`);
   if (strict && data.diagnostics.length) throw new Error(`Strict mode: ${data.diagnostics.length} diagnostic(s); no report written.`);
   const html = await renderReport(data);
   // A forced replacement is atomic and never follows an output symlink.
