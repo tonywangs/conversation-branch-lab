@@ -22,13 +22,38 @@ The table below is generated from the retained run. Re-run results may differ. A
 
 | Input / version | Report bytes | Generation ms | Peak CLI KiB | Load ms | Max DOM | Max cards | Search median ms | Navigation median ms | Comparison median ms |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| wide / baseline | 7200361 | 1076.9 | 203856 | 937.7 | 1304 | 14 | 123.9 | 173.1 | 108.4 |
-| wide / updated | 7203629 | 1517.9 | 177892 | 1028.8 | 512 | 14 | 117.0 | 117.0 | 252.8 |
-| deep / baseline | 774062 | 239.5 | 77548 | 5579.5 | 47066 | 9001 | 377.9 | 7311.0 | 5325.9 |
-| deep / updated | 777330 | 513.9 | 90192 | 447.3 | 1193 | 201 | 100.6 | 252.5 | 460.3 |
+| wide / baseline | 7200361 | 1209.3 | 203756 | 995.8 | 1304 | 14 | 166.3 | 164.5 | 101.7 |
+| wide / updated | 9988569 | 1644.2 | 195216 | 1500.9 | 520 | 14 | 103.6 | 140.5 | 339.8 |
+| deep / baseline | 774062 | 229.5 | 77376 | 5509.3 | 47066 | 9001 | 457.2 | 11114.9 | 6714.5 |
+| deep / updated | 1039716 | 640.2 | 87788 | 867.5 | 1201 | 201 | 166.9 | 280.7 | 743.6 |
 
 ## Interpretation and limits
 
-The deep case demonstrates the intended benefit: far fewer DOM elements and message cards, and much faster navigation/comparison. The wide case already rendered short paths in the baseline, so the main DOM saving comes from paging the conversation selector. Canonical duplicate checking and multi-file import add generation work; small-report and CLI memory regressions are acceptable tradeoffs for deterministic conflict detection and bounded browser rendering. Report size increases slightly due to additional UI code.
+The deep case demonstrates the intended benefit: far fewer DOM elements and message cards, and much faster navigation/comparison. The wide case already rendered short paths in the baseline, so the main DOM saving comes from paging the conversation selector. Canonical duplicate checking and multi-file import add generation work; small-report and CLI memory regressions are acceptable tradeoffs for deterministic conflict detection and bounded browser rendering. Report size increases because normalized timestamps, structural markers, omission lists and source provenance are now retained for export, along with additional UI code. The deep fixture's peak CLI memory and generation time increase; these regressions are retained in the raw results.
 
 These fixtures contain short messages and no large attachments. They do not establish performance on Tony's exports, screen-reader usability, other browsers, low-memory devices, or the full 128 MiB import ceiling. The import ceilings are explicit safety limits, not guarantees of interactive performance. Raw results retain regressions as well as improvements.
+
+
+## Selected export measurements
+
+The same seeded inputs also exercise single-path and comparison export through the
+CLI and offline browser. CLI wall time includes reading both shards, validating the
+whole archive, hashing and writing both outputs. Browser preparation time includes
+the button click, serialization and hashing through the ready status, on an already
+loaded report; it excludes subsequent download I/O. These timings measure different
+workflows and are not direct algorithm-speed comparisons. Each case is measured
+once. Bytes from both actual browser downloads must equal CLI outputs, and selected
+IDs must match the independent raw-parent reference. DOM counts above include
+samples with download links present; exporting does not render all selected nodes.
+
+Wide exports select `n49` (or `n49`/`n48`) in conversation `c999`, excluding the other
+999 conversations. Deep exports select `n4499` (or `n4499`/`n4999`), exercising the
+4,500-node chain and divergent reply. Output sizes depend on selection, not merely
+archive size. No performance extrapolation to the 128 MiB input ceiling is made.
+
+| Input / mode | CLI ms | Browser prepare ms | Markdown bytes | Sidecar bytes |
+| --- | ---: | ---: | ---: | ---: |
+| wide / path | 1334.2 | 70.7 | 1677 | 2218 |
+| wide / comparison | 1401.0 | 56.9 | 2044 | 2564 |
+| deep / path | 564.6 | 187.5 | 786760 | 676372 |
+| deep / comparison | 604.9 | 193.3 | 786965 | 676582 |

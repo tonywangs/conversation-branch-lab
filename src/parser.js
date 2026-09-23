@@ -37,7 +37,12 @@ export function parseExport(input) {
           }
         }
       }
-      nodes[id] = { id, parent, children: [], role, text, kind };
+      const timestamp = typeof message?.create_time === 'number' && Number.isFinite(message.create_time) ? message.create_time : null;
+      const omissions = [];
+      if (message?.create_time != null && timestamp === null) omissions.push('invalid-timestamp');
+      if (isObject(message?.metadata) && Object.keys(message.metadata).length) omissions.push('message-metadata');
+      if (message?.metadata?.attachments?.length) omissions.push('unavailable-attachments');
+      nodes[id] = { id, parent, children: [], role, text, kind, timestamp, omissions, structural: message === null || message === undefined };
     }
     for (const node of Object.values(nodes)) {
       if (node.parent !== null && !Object.hasOwn(nodes, node.parent)) {

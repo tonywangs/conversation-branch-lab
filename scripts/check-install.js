@@ -27,6 +27,13 @@ try {
   const data = JSON.parse(html.match(/id="report-data">(.*?)<\/script>/s)[1]);
   assert.equal(data.conversations.length,4);
   assert.equal(data.conversations.at(-1).id,'installed-extra');
+  for (const endpoints of [['end-a'], ['end-a', 'end-b']]) {
+    const output = join(dir, endpoints.length === 1 ? 'single.md' : 'comparison.md');
+    run(cli,[fixture,'--markdown','--conversation-index','0',...endpoints.flatMap(id=>['--endpoint',id]),'-o',output],dir);
+    const metadata = JSON.parse(await readFile(output + '.json','utf8'));
+    assert.deepEqual(metadata.settings.endpoints,endpoints);
+    assert.match(await readFile(output,'utf8'),/Suggest a quiet weekend project/);
+  }
   if (process.env.VERIFY_INSTALL_BROWSER === '1') {
     const { chromium } = await import('@playwright/test');
     const browser = await chromium.launch();

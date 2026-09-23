@@ -33,6 +33,31 @@ conversation-branch-lab --help
 
 `--strict` fails on any diagnostic and writes no report. Ordinary mode repairs malformed links and displays diagnostics both on stderr and inside the report. Invalid JSON or invalid conversation/mapping/node shapes always exit with code 1. A successful conversion exits with code 0, even when recovery diagnostics are present.
 
+## Export a selected branch or comparison
+
+```sh
+conversation-branch-lab fixtures/synthetic-conversations.json --markdown --conversation-index 0 --endpoint end-a -o single.md
+conversation-branch-lab fixtures/synthetic-conversations.json --markdown --conversation-index 0 --endpoint end-a --endpoint end-b -o comparison.md
+```
+
+Each command writes Markdown plus a `.md.json` provenance sidecar. Conversation
+indices are zero-based in import order, after deduplication. Endpoints may be nonleaf
+nodes; the whole path is exported. Two endpoints show shared context once, followed
+by the alternatives. Missing selections fail. `--force` protects/replaces both outputs
+using the same input-alias checks as HTML output.
+
+In the offline report, choose a node or endpoints A/B, then use **Prepare selected
+path** or **Prepare comparison A/B** and download both links. These native controls
+work with Tab and Enter. Downloads include the full paths even when the display is
+paged. Their bytes match CLI exports for the same source and selection.
+
+Message bodies, including embedded code fences, appear as literal fenced text.
+Structural nodes, empty messages, unavailable attachments and omitted content are
+identified. The versioned JSON sidecar includes source hashes, IDs, timestamps,
+ordered selected messages, settings and artifact hashes. Selection does **not**
+anonymize included content. Read [selection format semantics](docs/export-format.md#selected-markdown-export-version-1)
+for the privacy boundary, hash verification and limits.
+
 ## Multiple files and large reports
 
 Files are imported in command-line order; conversations retain array order. Identical records are retained once, at their first occurrence. Equality compares the entire JSON record with object keys sorted; arrays remain ordered. Records with the same string ID but different content fail with both filenames and record positions. Without a string ID, only identical whole records deduplicate. Re-exported records with changed metadata count as conflicts, even if their displayed text is unchanged. No version is silently preferred. Single-file input follows the same duplicate policy.
@@ -99,3 +124,10 @@ See [validation scope](docs/validation.md). No website or package registry publi
 ## Existing work
 
 This is not a novel category. [ChatGPT JSON Tree Viewer](https://github.com/akivacp/chatgpt-json-tree-viewer) already provides tree navigation and search; [chatgpt-exporter](https://github.com/pionxzh/chatgpt-exporter) includes export tooling and mapping-based conversation examples. Their primary project documentation was reviewed to understand the landscape and observed structure. This implementation was written for a narrower workflow: an installable, runtime-dependency-free converter with explicit recovery diagnostics and shared-ancestor comparison in a self-contained report.
+
+
+For branch export specifically, [ChatGPT Conversation Exporter](https://github.com/undcore/chatgpt-conversation-exporter)
+documents active/all-branch Markdown downloads and attachment placeholders, while
+[chatgpt-archive-tools](https://github.com/jamesmoore/chatgpt-archive-tools) documents
+latest/complete branch modes. Their primary documentation and the former's [export implementation](https://github.com/undcore/chatgpt-conversation-exporter/blob/main/src/chatgpt-export-to-markdown.js) were reviewed for this milestone. Branch-aware export is established work; this project's scope is explicit
+endpoint pairs, deterministic CLI/offline-browser artifacts and selection provenance.

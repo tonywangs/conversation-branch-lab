@@ -126,3 +126,40 @@ test('untrusted titles, roles, node identifiers, and diagnostics are also render
   await expect(page.locator('script')).toHaveCount(2);
   assert.equal(await page.evaluate(() => globalThis.__messageExecuted),undefined);
 });
+
+test('keyboard downloads match CLI bytes for paths and comparisons; stale downloads clear', async t => {
+  const sample = JSON.stringify([{id:'c',title:'Selected',current_node:'a',mapping:{
+    root:{parent:null,message:null},
+    a:{parent:'root',message:{author:{role:'user'},create_time:123.5,content:{content_type:'text',parts:['SELECTED café\n```js\nalert(1)\n```']}}},
+    b:{parent:'root',message:{author:{role:'tool'},content:{content_type:'text',parts:['ALTERNATIVE']}}},
+    sibling:{parent:'root',message:{author:{role:'assistant'},content:{content_type:'text',parts:['SIBLING_SENTINEL']}}}
+  }},{id:'UNRELATED_ID',title:'UNRELATED_TITLE',mapping:{x:{parent:null,message:{content:{content_type:'text',parts:['UNRELATED_BODY']}}}}}]);
+  const {page,dir} = await setup(t,sample);
+  for (const endpoints of [['a'],['a','b'],['root'],['a','a'],['a','root']]) {
+    for (const [i,id] of endpoints.entries()) {
+      await page.locator('#node-id').fill(id); await page.locator('#node-id').press('Enter');
+      await page.locator(`#set-${i === 0 ? 'a' : 'b'}`).click();
+    }
+    const output = join(dir,'selected.md');
+    const cli = spawnSync(process.execPath,[join(root,'src/cli.js'),join(dir,'conversations.json'),'--markdown','--conversation-index','0',...endpoints.flatMap(id=>['--endpoint',id]),'-o',output,'--force'],{encoding:'utf8'});
+    assert.equal(cli.status,0,cli.stderr);
+    const prepare = page.locator(endpoints.length === 1 ? '#export-path' : '#export-comparison');
+    await prepare.focus(); await page.keyboard.press('Enter');
+    await expect(page.locator('#export-status')).toContainText('Ready.');
+    await expect(page.getByRole('link',{name:'Download Markdown',exact:true})).toBeFocused();
+    for (const [name,file] of [['Download Markdown',output],['Download JSON sidecar',output+'.json']]) {
+      const link = page.getByRole('link',{name,exact:true}); await link.focus();
+      const promise = page.waitForEvent('download'); await page.keyboard.press('Enter');
+      const download = await promise;
+      const bytes = await readFile(await download.path());
+      assert.deepEqual(bytes,await readFile(file));
+      for (const sentinel of ['SIBLING_SENTINEL','UNRELATED_ID','UNRELATED_TITLE','UNRELATED_BODY']) assert.ok(!bytes.toString().includes(sentinel));
+      if (endpoints.length === 1) assert.ok(!bytes.toString().includes('ALTERNATIVE'));
+    }
+    await page.locator('#node-id').fill('root'); await page.locator('#node-id').press('Enter');
+    await expect(page.locator('#export-downloads a')).toHaveCount(0);
+    assert.ok(await page.locator('.message').count() <= 500);
+  }
+  await page.locator('#conversation').selectOption('1');
+  await expect(page.locator('#export-downloads a')).toHaveCount(0);
+});

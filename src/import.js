@@ -8,11 +8,12 @@ function canonical(value) {
   return value;
 }
 export function importExports(sources, limits = LIMITS) {
-  const records = [], origins = [], seen = new Map();
+  const records = [], origins = [], provenance = [], seen = new Map();
   let nodes = 0, count = 0;
   if (sources.length > limits.files) throw new Error(`Input file limit ${limits.files} exceeded.`);
-  for (const { source, input } of sources) {
+  for (const { source, input, sha256 } of sources) {
     if (!Array.isArray(input)) throw new Error(`${source}: Export must be a JSON array of conversations.`);
+    const sourceHash = sha256 ?? createHash('sha256').update(JSON.stringify(input)).digest('hex');
     for (const [index, raw] of input.entries()) {
       const origin = `${source}: conversation ${index + 1}`;
       if (++count > limits.conversations) throw new Error(`${origin}: conversation limit ${limits.conversations} exceeded.`);
@@ -29,6 +30,7 @@ export function importExports(sources, limits = LIMITS) {
       }
       seen.set(key, { digest, origin });
       records.push(raw); origins.push(origin);
+      provenance.push({ sourceSha256: sourceHash, sourceHashBasis: sha256 ? 'file-bytes' : 'JSON.stringify(input) UTF-8', recordIndex: index, recordSha256: digest });
     }
   }
   // Parse individually so even fatal shape errors carry a source filename.
@@ -38,6 +40,7 @@ export function importExports(sources, limits = LIMITS) {
     try { parsed = parseExport([raw]); } catch (error) { throw new Error(`${origins[index]}: ${error.message}`); }
     if (typeof raw.id !== 'string') parsed.conversations[0].id = `conversation-${index + 1}`;
     if (typeof raw.title !== 'string') parsed.conversations[0].title = `Untitled conversation ${index + 1}`;
+    parsed.conversations[0].provenance = provenance[index];
     data.conversations.push(parsed.conversations[0]);
     for (const diagnostic of parsed.diagnostics) data.diagnostics.push({ ...diagnostic, conversation: index, source: origins[index] });
   });

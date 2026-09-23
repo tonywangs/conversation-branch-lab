@@ -80,6 +80,40 @@ try {
         }
         metrics.interactionMs.comparison.push(performance.now()-tick); await bounded();
       }
+      if (version === 'updated') {
+        metrics.exports = [];
+        const targetIndex = raw.length - 1;
+        const endpoints = name === 'wide' ? ['n49', 'n48'] : ['n4499', 'n4999'];
+        for (const selection of [[endpoints[0]], endpoints]) {
+          const output = join(dir, `${name}-${selection.length}.md`);
+          const tick = performance.now();
+          run(process.execPath,[resolve('src/cli.js'),...parts,'--markdown','--conversation-index',String(targetIndex),...selection.flatMap(id => ['--endpoint',id]),'-o',output]);
+          const cliMs = performance.now() - tick;
+          for (const [index,id] of selection.entries()) {
+            await page.locator('#node-id').fill(id); await page.locator('#node-id').press('Enter');
+            await page.locator(index ? '#set-b' : '#set-a').click();
+          }
+          const start = performance.now();
+          await page.locator(selection.length === 1 ? '#export-path' : '#export-comparison').click();
+          await page.waitForFunction(() => document.querySelector('#export-status').textContent.startsWith('Ready.'));
+          const browserPrepareMs = performance.now() - start;
+          const sizes = {};
+          for (const [label,file,key] of [['Download Markdown',output,'markdownBytes'],['Download JSON sidecar',output+'.json','sidecarBytes']]) {
+            const downloaded = page.waitForEvent('download');
+            await page.getByRole('link',{name:label,exact:true}).click();
+            const download = await downloaded;
+            const actual = await readFile(await download.path()), expected = await readFile(file);
+            assert.deepEqual(actual,expected); sizes[key] = actual.length;
+          }
+          const metadata = JSON.parse(await readFile(output+'.json','utf8'));
+          const ref = reference(raw[targetIndex],...endpoints);
+          assert.deepEqual(metadata.paths, selection.length === 1 ? {path:[...ref.shared,...ref.a]} : {shared:ref.shared,a:ref.a,b:ref.b});
+          metrics.exports.push({mode:selection.length === 1 ? 'path' : 'comparison', cliMs, browserPrepareMs, ...sizes});
+          await bounded();
+        }
+        // Restore the endpoint used by the following pagination regression.
+        await page.locator('#node-id').fill(endpoints[1]); await page.locator('#node-id').press('Enter');
+      }
       // Full Unicode search reference, including all conversations, not rendered cards.
       await page.locator('#search').fill('CAFÉ こんにちは 🌍');
       const total = raw.reduce((sum,c) => sum+Object.values(c.mapping).filter(n => n.message.content.parts.join('\n').toLowerCase().includes('café こんにちは 🌍')).length,0);

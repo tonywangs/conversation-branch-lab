@@ -8,7 +8,34 @@
     if (className) el.className = className;
     return el;
   };
-  let conversationIndex = 0, selected = null;
+  let conversationIndex = 0, selected = null, exportRevision = 0;
+  let downloadURLs = [];
+  function clearExport() {
+    exportRevision++;
+    for (const url of downloadURLs) URL.revokeObjectURL(url);
+    downloadURLs = [];
+    $('export-downloads').replaceChildren(); $('export-status').textContent = '';
+    $('export-path').disabled = selected === null;
+    $('export-comparison').disabled = !current() || !Object.keys(current().nodes).length;
+  }
+  for (const mode of ['path', 'comparison']) $(`export-${mode}`).addEventListener('click', async () => {
+    clearExport();
+    const revision = exportRevision;
+    $('export-status').textContent = 'Preparing downloads…';
+    try {
+      const artifacts = await exportSelection(data, conversationIndex, mode === 'path' ? [selected] : [$('endpoint-a').value, $('endpoint-b').value]);
+      if (revision !== exportRevision) return;
+      for (const [key, filename, type] of [['markdown', 'selection.md', 'text/markdown'], ['sidecar', 'selection.md.json', 'application/json']]) {
+        const url = URL.createObjectURL(new Blob([artifacts[key]], { type: type + ';charset=utf-8' }));
+        downloadURLs.push(url);
+        const link = element('a', key === 'markdown' ? 'Download Markdown' : 'Download JSON sidecar');
+        link.href = url; link.download = filename; link.className = 'download';
+        $('export-downloads').append(link, document.createTextNode(' '));
+      }
+      $('export-status').textContent = 'Ready. Download both files to retain provenance.';
+      $('export-downloads').querySelector('a').focus();
+    } catch (error) { if (revision === exportRevision) $('export-status').textContent = `Export failed: ${error.message}`; }
+  });
   const current = () => data.conversations[conversationIndex];
   const label = node => `${node.role} · ${node.text.slice(0, 75) || '(empty node)'} [${node.id}]`;
   const pathTo = id => {
@@ -56,6 +83,7 @@
 
   function selectNode(id) {
     selected = id;
+    clearExport();
     for (const button of $('tree').querySelectorAll('button[data-node-id]')) {
       button.setAttribute('aria-pressed', String(button.dataset.nodeId === id));
     }
@@ -65,6 +93,7 @@
     messages($('path'), id === null ? [] : pathTo(id), 'This conversation has no nodes.');
   }
   function compare() {
+    clearExport();
     const c = current();
     if (!c || !Object.keys(c.nodes).length) {
       $('comparison-status').textContent = 'No endpoints to compare.';
