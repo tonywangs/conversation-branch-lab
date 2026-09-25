@@ -1,0 +1,96 @@
+
+> conversation-branch-lab@0.1.0 verify
+> npm test && npm run test:browser && npm run test:install && npm run test:large && npm run test:snapshot:large
+
+
+> conversation-branch-lab@0.1.0 test
+> node --test test/*.test.js
+
+✔ CLI imports synthetic export, reports repairs, and embeds safely (139.730527ms)
+✔ CLI refuses overwrite, supports explicit force, and protects input (591.976326ms)
+✔ strict diagnostics, malformed JSON, structural errors, and arguments fail without output (962.946756ms)
+✔ UTF-8 BOM and empty exports generate valid reports (140.370151ms)
+✔ force cannot modify the input via symlinks or hard links and replaces other symlinks safely (377.66669ms)
+✔ multi-file CLI preserves order, deduplicates, names conflicts and protects every input (409.039724ms)
+✔ CLI rejects oversized byte input and too many files before writing (223.048737ms)
+✔ CLI export validates selection, protects both output files and records raw source hashes (1647.663986ms)
+✔ 250 seeded graphs match independent root-to-node traversal, including nonleaf and separate roots (1309.576894ms)
+✔ literal bodies, metadata, omission boundaries and reproducible artifact hashes (7.349781ms)
+✔ deep chains, same endpoints, ancestors, malformed selections and repaired graphs (446.629006ms)
+✔ multi-file order, canonical duplicate equality, missing IDs and conflicts (6.629673ms)
+✔ explicit file, conversation and node limits count duplicate input too (0.626891ms)
+✔ diagnostics retain source and final conversation index (0.675725ms)
+✔ synthetic export retains alternatives, shared ancestry, null roots and Unicode (27.31698ms)
+✔ missing parents become roots with explicit diagnostics (1.042635ms)
+✔ cycles, self-links, and tails terminate and retain every node (0.811511ms)
+✔ deep chains are handled without recursion (415.583861ms)
+✔ unsupported content and malformed messages produce placeholders and diagnostics (0.984138ms)
+✔ parent links win over inconsistent, duplicated or invalid children (0.584923ms)
+✔ special object keys and empty identifiers are ordinary node identifiers (0.425597ms)
+✔ invalid top-level shapes fail explicitly; empty exports and mappings are valid (1.37487ms)
+✔ unknown current node warns and falls back; duplicate conversation IDs retain both records (0.689537ms)
+✔ snapshot CLI writes reproducible HTML/JSON with exact raw hashes and no input modification (636.678068ms)
+✔ snapshot CLI protects both inputs from direct, symlink and hardlink output aliases (461.688649ms)
+✔ incomplete analysis writes exit 2; strict and ambiguous identity fail before writing (909.118555ms)
+✔ snapshot input byte/file/depth bounds and argument errors fail without output (1085.51277ms)
+✔ explicit before/after content, structural, parent, metadata and path semantics (10.91366ms)
+✔ no identity guessing; empty and unusual IDs; duplicate aliases fail (5.889591ms)
+✔ raw JSON validator rejects duplicate keys, malformed tokens, excess depth and unsafe numbers (2.405975ms)
+✔ reordered arrays, mapping and object keys retain semantic equality and deterministic results (3.633402ms)
+✔ unsupported content and malformed graphs never establish complete equivalence (7.375787ms)
+✔ Unicode, timestamps, text part boundaries, missing vs null and ignored child ordering (16.754165ms)
+✔ bounded counts fail explicitly; deep parent chains are iterative (1353.575848ms)
+✔ 250 seeded snapshot pairs match mutation ledger and independent active-path oracle (1335.87981ms)
+✔ artifact byte bounds check both outputs including HTML escaping expansion (39.110156ms)
+ℹ tests 36
+ℹ suites 0
+ℹ pass 36
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 13717.62917
+
+> conversation-branch-lab@0.1.0 test:browser
+> node --test test/*.e2e.js
+
+✔ offline import → tree navigation → shared-ancestor comparison → cross-conversation search (2264.746672ms)
+✔ malicious message markup remains literal with CSP and without CSP (1584.624662ms)
+✔ empty export and empty conversation remain usable (1979.570581ms)
+✔ special node identifiers, distinct conversation IDs, and cycles survive browser navigation (1207.390148ms)
+✔ untrusted titles, roles, node identifiers, and diagnostics are also rendered as text (909.693412ms)
+✔ keyboard downloads match CLI bytes for paths and comparisons; stale downloads clear (3879.740401ms)
+✔ offline snapshot keyboard navigation, paged filtering and exact before/after views (2000.339354ms)
+✔ hostile values are literal with and without CSP, including IDs and unsupported payloads (1623.84025ms)
+✔ empty, unchanged, incomplete and long-value reports accurately describe their limits (2892.864308ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 20580.243431
+
+> conversation-branch-lab@0.1.0 test:install
+> node scripts/check-install.js
+
+PASS: packed CLI installed offline in an isolated prefix and generated self-contained browsing and snapshot comparison reports.
+
+> conversation-branch-lab@0.1.0 test:large
+> node scripts/verify-large.js
+
+wide baseline: 7200361 bytes, 195252 KiB peak, 1304 DOM elements, 14 message cards
+wide updated: 9988569 bytes, 198024 KiB peak, 520 DOM elements, 14 message cards
+deep baseline: 774062 bytes, 77748 KiB peak, 47066 DOM elements, 9001 message cards
+deep updated: 1039716 bytes, 90948 KiB peak, 1201 DOM elements, 201 message cards
+
+> conversation-branch-lab@0.1.0 test:snapshot:large
+> node scripts/verify-snapshot-large.js
+
+wide unchanged: 0 findings, 4314 ms, 209568 KiB peak, 9798 HTML bytes, 0 message elements
+wide sparse: 1002 findings, 4642 ms, 234440 KiB peak, 396112 HTML bytes, 100 message elements
+wide dense: 50002 findings, 6653 ms, 505432 KiB peak, 19266855 HTML bytes, 100 message elements
+deep unchanged: 0 findings, 894 ms, 96672 KiB peak, 9790 HTML bytes, 0 message elements
+deep sparse: 3 findings, 1405 ms, 106796 KiB peak, 27371 HTML bytes, 6 message elements
+deep dense: 5002 findings, 1528 ms, 133636 KiB peak, 1994407 HTML bytes, 100 message elements

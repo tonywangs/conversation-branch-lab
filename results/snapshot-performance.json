@@ -1,0 +1,149 @@
+{
+  "seed": 20260925,
+  "semanticsVersion": 1,
+  "environment": {
+    "node": "v24.20.0",
+    "chromium": "153.0.8010.12",
+    "os": "linux 6.8.0-124-generic",
+    "cpu": "DO-Regular",
+    "logicalCPUs": 4,
+    "memoryBytes": 8326938624
+  },
+  "method": "One measured CLI run per case, GNU time maximum resident set size. Generated fixtures; no external data. Browser timings include Playwright round trips. Limits are not responsiveness guarantees.",
+  "runs": [
+    {
+      "name": "wide",
+      "mode": "unchanged",
+      "nodesPerSnapshot": 50000,
+      "conversationsPerSnapshot": 1000,
+      "generationMs": 4466.039214,
+      "peakCliKiB": 230008,
+      "inputBytes": {
+        "before": 7979197,
+        "after": 7979197
+      },
+      "inputSha256": {
+        "before": "83efdbd1c3386f7a3c144f62059374a1f2af6f68951e2116fc397aab0ed7eed9",
+        "after": "b0dd16f4a4c629fdbeb14f9be6247104e9bac5f48e66411ab80746b3a943f7c8"
+      },
+      "htmlBytes": 9798,
+      "jsonBytes": 858,
+      "maxMessages": 0,
+      "maxDOM": 55,
+      "loadMs": 175.5205100000003
+    },
+    {
+      "name": "wide",
+      "mode": "sparse",
+      "nodesPerSnapshot": 50000,
+      "conversationsPerSnapshot": 1000,
+      "generationMs": 4426.716630000001,
+      "peakCliKiB": 234584,
+      "inputBytes": {
+        "before": 7979197,
+        "after": 8003087
+      },
+      "inputSha256": {
+        "before": "83efdbd1c3386f7a3c144f62059374a1f2af6f68951e2116fc397aab0ed7eed9",
+        "after": "0330cfa3f98df1f0d676627db61a4f46ee943ca4250175b212d1f0c6b363a316"
+      },
+      "htmlBytes": 396112,
+      "jsonBytes": 387172,
+      "maxMessages": 100,
+      "maxDOM": 557,
+      "loadMs": 376.88393800000085,
+      "pageMs": 184.66339100000005,
+      "searchMs": 103.16125599999941
+    },
+    {
+      "name": "wide",
+      "mode": "dense",
+      "nodesPerSnapshot": 50000,
+      "conversationsPerSnapshot": 1000,
+      "generationMs": 6465.258816000001,
+      "peakCliKiB": 507160,
+      "inputBytes": {
+        "before": 7979197,
+        "after": 9163697
+      },
+      "inputSha256": {
+        "before": "83efdbd1c3386f7a3c144f62059374a1f2af6f68951e2116fc397aab0ed7eed9",
+        "after": "896507744a41c0d20694d6d7ee2db88a21d457b9a541905a8502c169d9cd8743"
+      },
+      "htmlBytes": 19266855,
+      "jsonBytes": 19257915,
+      "maxMessages": 100,
+      "maxDOM": 557,
+      "loadMs": 2200.092027999999,
+      "pageMs": 199.65064599999823,
+      "searchMs": 470.26400999999896
+    },
+    {
+      "name": "deep",
+      "mode": "unchanged",
+      "nodesPerSnapshot": 5000,
+      "conversationsPerSnapshot": 1,
+      "generationMs": 927.3818030000002,
+      "peakCliKiB": 95828,
+      "inputBytes": {
+        "before": 822563,
+        "after": 822563
+      },
+      "inputSha256": {
+        "before": "d036d56c80c724877c4483c15bb6a90a1fa42f961d155989861985d3063d21f8",
+        "after": "6d298ad87bbd0ae7da7ac43bcaa0328a2c15829a54ca61b4f5750c313b466e03"
+      },
+      "htmlBytes": 9790,
+      "jsonBytes": 850,
+      "maxMessages": 0,
+      "maxDOM": 55,
+      "loadMs": 193.34332799999902
+    },
+    {
+      "name": "deep",
+      "mode": "sparse",
+      "nodesPerSnapshot": 5000,
+      "conversationsPerSnapshot": 1,
+      "generationMs": 1137.7667760000004,
+      "peakCliKiB": 104912,
+      "inputBytes": {
+        "before": 822563,
+        "after": 822585
+      },
+      "inputSha256": {
+        "before": "d036d56c80c724877c4483c15bb6a90a1fa42f961d155989861985d3063d21f8",
+        "after": "62ef52e00394a651642dbfdbed68daf2e8e180455a71c7e9ff712dc4e81be062"
+      },
+      "htmlBytes": 27371,
+      "jsonBytes": 18431,
+      "maxMessages": 6,
+      "maxDOM": 87,
+      "loadMs": 220.7134760000008,
+      "pageMs": null,
+      "searchMs": 39.8719259999998
+    },
+    {
+      "name": "deep",
+      "mode": "dense",
+      "nodesPerSnapshot": 5000,
+      "conversationsPerSnapshot": 1,
+      "generationMs": 1613.031197999997,
+      "peakCliKiB": 126732,
+      "inputBytes": {
+        "before": 822563,
+        "after": 951449
+      },
+      "inputSha256": {
+        "before": "d036d56c80c724877c4483c15bb6a90a1fa42f961d155989861985d3063d21f8",
+        "after": "51b75fccbcd4346442e1081e78fab44b0ccdc7be43db0a8e981f1e1e31658d4b"
+      },
+      "htmlBytes": 1994407,
+      "jsonBytes": 1985467,
+      "maxMessages": 100,
+      "maxDOM": 557,
+      "loadMs": 698.7000879999978,
+      "pageMs": 206.59060299999692,
+      "searchMs": 104.04847500000324
+    }
+  ]
+}

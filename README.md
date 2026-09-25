@@ -33,6 +33,25 @@ conversation-branch-lab --help
 
 `--strict` fails on any diagnostic and writes no report. Ordinary mode repairs malformed links and displays diagnostics both on stderr and inside the report. Invalid JSON or invalid conversation/mapping/node shapes always exit with code 1. A successful conversion exits with code 0, even when recovery diagnostics are present.
 
+## Compare two export snapshots
+
+```sh
+conversation-branch-lab --compare before.json after.json -o snapshot.html
+# A snapshot can span multiple files:
+conversation-branch-lab --compare --before before-1.json --before before-2.json --after after.json -o snapshot.html
+```
+
+Writes deterministic `snapshot.html.json` plus a self-contained `snapshot.html`
+with paged filters and before/after values. Findings distinguish conversation and
+node presence, content, metadata, parent links, and active paths. Absence from a
+snapshot does not prove deletion. IDs must be explicit and unambiguous; identical
+duplicate conversation IDs also fail in this mode.
+
+Exit 0 means complete analysis (differences may exist), exit 2 means reports were
+written with incomplete analysis, and exit 1 means failure. `--strict` fails before
+writing on any limitation. Unsupported content never establishes equivalence.
+`--force` replaces outputs. See [version 1 semantics, limits, and verification](docs/snapshot-comparison.md).
+
 ## Export a selected branch or comparison
 
 ```sh

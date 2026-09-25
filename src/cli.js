@@ -5,6 +5,7 @@ import { randomUUID, createHash } from 'node:crypto';
 import { importExports, LIMITS } from './import.js';
 import { renderReport } from './report.js';
 import { exportSelection } from './export.js';
+import { snapshotMain, snapshotUsage } from './snapshot-cli.js';
 const usage = `Usage: conversation-branch-lab <conversations.json> [more.json ...] [-o report.html] [--strict] [--force]
 
 Creates a self-contained offline HTML report. Default output: report.html
@@ -13,12 +14,13 @@ Creates a self-contained offline HTML report. Default output: report.html
 -h, --help  Show this help.
 `;
 async function main(args) {
+  if (args[0] === '--compare') return snapshotMain(args.slice(1));
   const inputs = [];
   let output, strict = false, force = false, markdown = false, conversationIndex;
   const endpoints = [];
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
-    if (arg === '--help' || arg === '-h') { console.log(usage); return; }
+    if (arg === '--help' || arg === '-h') { console.log(usage + '\n' + snapshotUsage); return; }
     if (arg === '-o' || arg === '--output') {
       if (!args[i + 1] || args[i + 1].startsWith('-')) throw new Error(`${arg} requires a filename.`);
       output = args[++i];

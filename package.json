@@ -19,11 +19,13 @@
   },
   "scripts": {
     "test": "node --test test/*.test.js",
-    "test:browser": "node --test test/browser.e2e.js",
+    "test:browser": "node --test test/*.e2e.js",
     "test:install": "node scripts/check-install.js",
     "demo": "node src/cli.js fixtures/synthetic-conversations.json -o demo.html --force",
     "check": "npm test && npm run test:install && npm run test:browser",
-    "test:large": "node scripts/verify-large.js"
+    "test:large": "node scripts/verify-large.js",
+    "test:snapshot:large": "node scripts/verify-snapshot-large.js",
+    "verify": "npm test && npm run test:browser && npm run test:install && npm run test:large && npm run test:snapshot:large"
   },
   "devDependencies": {
     "@playwright/test": "1.63.0"

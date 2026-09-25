@@ -43,3 +43,11 @@ clear stale links. Existing injection-defense and import-limit regressions remai
 The isolated installed CLI exercises both documented export commands offline.
 Large-fixture checks download and compare both artifacts for path and comparison
 exports, check independent ancestry and retain actual times/sizes and DOM maxima.
+
+## Snapshot comparison milestone
+
+See [snapshot semantics and reproduction](snapshot-comparison.md) for the new
+comparison CLI, independent 250-seed mutation ledger, browser checks and paired
+large fixtures. `npm run verify` combines the existing and snapshot checks.
+Use `VERIFY_INSTALL_BROWSER=1` to include installed-package browser checks.
+Actual synthetic performance is retained in `results/snapshot-performance.json`.

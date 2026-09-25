@@ -22,10 +22,10 @@ The table below is generated from the retained run. Re-run results may differ. A
 
 | Input / version | Report bytes | Generation ms | Peak CLI KiB | Load ms | Max DOM | Max cards | Search median ms | Navigation median ms | Comparison median ms |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| wide / baseline | 7200361 | 1209.3 | 203756 | 995.8 | 1304 | 14 | 166.3 | 164.5 | 101.7 |
-| wide / updated | 9988569 | 1644.2 | 195216 | 1500.9 | 520 | 14 | 103.6 | 140.5 | 339.8 |
-| deep / baseline | 774062 | 229.5 | 77376 | 5509.3 | 47066 | 9001 | 457.2 | 11114.9 | 6714.5 |
-| deep / updated | 1039716 | 640.2 | 87788 | 867.5 | 1201 | 201 | 166.9 | 280.7 | 743.6 |
+| wide / baseline | 7200361 | 1214.1 | 195252 | 919.3 | 1304 | 14 | 159.2 | 152.1 | 111.4 |
+| wide / updated | 9988569 | 1662.8 | 198024 | 924.6 | 520 | 14 | 106.8 | 133.5 | 317.6 |
+| deep / baseline | 774062 | 288.2 | 77748 | 7294.9 | 47066 | 9001 | 501.9 | 8458.6 | 5929.1 |
+| deep / updated | 1039716 | 527.6 | 90948 | 574.3 | 1201 | 201 | 94.0 | 294.6 | 511.3 |
 
 ## Interpretation and limits
 
@@ -53,7 +53,34 @@ archive size. No performance extrapolation to the 128 MiB input ceiling is made.
 
 | Input / mode | CLI ms | Browser prepare ms | Markdown bytes | Sidecar bytes |
 | --- | ---: | ---: | ---: | ---: |
-| wide / path | 1334.2 | 70.7 | 1677 | 2218 |
-| wide / comparison | 1401.0 | 56.9 | 2044 | 2564 |
-| deep / path | 564.6 | 187.5 | 786760 | 676372 |
-| deep / comparison | 604.9 | 193.3 | 786965 | 676582 |
+| wide / path | 1357.0 | 62.3 | 1677 | 2218 |
+| wide / comparison | 1370.0 | 114.0 | 2044 | 2564 |
+| deep / path | 513.2 | 185.6 | 786760 | 676372 |
+| deep / comparison | 507.4 | 195.1 | 786965 | 676582 |
+
+## Snapshot comparison measurements
+
+The separate `test:snapshot:large` check compares two archives, using seed
+20260925. Each case has one measured process invocation; timings are observations,
+not confidence intervals. Unchanged cases reorder records and mapping keys. Sparse
+cases change one message per conversation; dense cases change every message. Both
+changed cases also change the first conversation title and active endpoint. The
+retained JSON includes source hashes, both input sizes, artifact sizes, CLI wall
+time, peak CLI RSS, browser load/interaction timings and sampled DOM counts.
+Browser heap memory is not measured.
+
+| Input / mutations | Nodes per side | CLI ms | Peak CLI KiB | HTML bytes | JSON bytes | Max DOM | Max message elements |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| wide / unchanged | 50000 | 4314.4 | 209568 | 9798 | 858 | 55 | 0 |
+| wide / sparse | 50000 | 4642.0 | 234440 | 396112 | 387172 | 557 | 100 |
+| wide / dense | 50000 | 6653.1 | 505432 | 19266855 | 19257915 | 557 | 100 |
+| deep / unchanged | 5000 | 894.0 | 96672 | 9790 | 850 | 55 | 0 |
+| deep / sparse | 5000 | 1405.4 | 106796 | 27371 | 18431 | 87 | 6 |
+| deep / dense | 5000 | 1527.7 | 133636 | 1994407 | 1985467 | 557 | 100 |
+
+Dense differences increase generation time, memory and artifact size substantially;
+paging only bounds rendered elements. The 50,000-message dense case retains all
+50,002 findings while rendering 100 message elements. These data do not establish
+performance at the configured 128 MiB input ceiling or on low-memory devices. See
+[comparison semantics and limitations](snapshot-comparison.md) and
+[raw measurements](../results/snapshot-performance.json).
